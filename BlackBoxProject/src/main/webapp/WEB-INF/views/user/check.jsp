@@ -38,5 +38,14 @@
 	<!-- iCheck -->
 	<script src="/resources/plugins/iCheck/icheck.min.js" type="text/javascript"></script>
 
-
+<script>
+		var successMsg = '${successMsg}';
+		if (successMsg != '') {
+			alert(successMsg);
+		}
+		var failMsg = '${failMsg}';
+		if (failMsg != '') {
+			alert(failMsg);
+		}
+	</script>
 	<%@include file="../include/footer.jsp"%>

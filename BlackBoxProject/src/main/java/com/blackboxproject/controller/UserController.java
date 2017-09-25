@@ -217,16 +217,18 @@ public class UserController {
 			}
 
 			vo.setUserCourse(saveCourseId);
-			session.setAttribute("login", vo);
+			
 			service.updateHasAuth(vo.getUserId());
-			rttr.addFlashAttribute("successMsg", "처리가 완료되었습니다. 다시 로그인 해주세요.");
+			vo.setUserHasAuth(1);
+			session.setAttribute("login", vo);
+			rttr.addFlashAttribute("successMsg", "처리가 완료되었습니다.");
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			rttr.addFlashAttribute("failMsg", "교과목 가져오기를 실패했습니다.학번과 비밀번호를 확인해주세요.");
 		}
 
-		return "redirect:/user/login";
+		return "redirect:/user/check";
 	}
 
 	// Ajax를 이용한 아이디 중복 확인

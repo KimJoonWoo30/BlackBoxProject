@@ -93,6 +93,7 @@ public class CourseController {
 		model.addAttribute("thumbnails", thumbnailList);
 		
 		// 4. 음성 가져오기
+		model.addAttribute("postId", postId);
 		
 		return "/lecturePage";
 	}
