@@ -4,8 +4,8 @@
 <comment>common_code</comment>
 
 <!-- Common Code Definition -->
-<entry key="db.id">root</entry>
-<entry key="db.pw">wnsdn0051</entry>
+<entry key="db.id">hongseok</entry>
+<entry key="db.pw">584621kim</entry>
 <entry key="db.url">jdbc:log4jdbc:mysql://127.0.0.1:3306/blackboxproject?useSSL=false</entry>
 
 

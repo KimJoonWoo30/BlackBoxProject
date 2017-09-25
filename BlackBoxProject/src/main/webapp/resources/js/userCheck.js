@@ -186,11 +186,11 @@ function insertChk() {
 		return;
 	}
 
-	// 성별 체크됬는지 여부
+	/*// 성별 체크됬는지 여부
 	if ($(".login-page :checked").size() < 1) {
 		alert("성별을 체크해주세요.");
 		return;
-	}
+	}*/
 
 	document.join.submit();
 }

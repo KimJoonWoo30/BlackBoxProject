@@ -16,6 +16,12 @@ public interface PostService {
 	public List<FileVO> getFilesByPostId(int postId) throws Exception;
 
 	public void modifyPost(PostVO pvo) throws Exception;
+
+	public PostVO getLecturePostById(int postId) throws Exception;
+
+	public List<PostVO> getLectureList(int courseId);
+
+	public FileVO getFilePathForLecture(int postId) throws Exception;
 	
 	
 	

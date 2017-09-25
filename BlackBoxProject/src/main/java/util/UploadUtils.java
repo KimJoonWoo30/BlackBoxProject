@@ -20,7 +20,7 @@ public class UploadUtils {
 	private static final Logger logger = LoggerFactory.getLogger(UploadUtils.class);
 
 	/**
-	 * ÆÄÀÏ ¾÷·Îµå
+	 * ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Îµï¿½
 	 * @param uploadPath
 	 * @param originalName
 	 * @param fileData
@@ -52,6 +52,31 @@ public class UploadUtils {
 
 		return uploadedFileName;
 	}
+	public static String uploadCourseFile(String uploadPath, String originalName, byte[] fileData)
+			throws Exception{
+		UUID uid = UUID.randomUUID();
+		String savedName = originalName;
+
+		String savedPath = calcCoursePath(uploadPath, originalName);
+		
+		logger.info(savedPath);
+		
+		File target = new File(uploadPath + savedPath, savedName);
+
+		FileCopyUtils.copy(fileData, target);
+
+		String formatName = originalName.substring(originalName.lastIndexOf('.')+1);
+
+		String uploadedFileName = null;
+
+		if(MediaUtils.getMediaType(formatName.toUpperCase()) != null){
+			uploadedFileName = makeThumbnail(uploadPath, savedPath, savedName);
+		}else{
+			uploadedFileName = makeIcon(uploadPath, savedPath, savedName);
+		}
+		System.out.println(uploadedFileName);
+		return uploadedFileName;
+	}
 
 	private static String makeIcon(String uploadPath, String path, String fileName)
 			throws Exception{
@@ -59,8 +84,18 @@ public class UploadUtils {
 		
 		return iconName.substring(uploadPath.length()).replace(File.separatorChar, '/');
 	}
+	
+	
+	private static String calcCoursePath(String uploadPath, String originName){
+		
+		String savedPath = calcPath(uploadPath);
+		String courseCodeName = originName.substring(0,originName.indexOf("_"));
+		savedPath = savedPath + File.separator + courseCodeName;
+		mkDir(uploadPath, savedPath);
+		return savedPath;
+	}
 
-	private static String calcPath(String uploadPath) {
+	public static String calcPath(String uploadPath) {
 		Calendar cal = Calendar.getInstance();
 
 		String yearPath = File.separator + cal.get(Calendar.YEAR);

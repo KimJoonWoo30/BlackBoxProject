@@ -43,6 +43,19 @@
 		UPDATE jnu_post SET post_content = #{postContent}, post_title = #{postTitle} WHERE post_id = #{postId}
 	</update>
 	
+
+	<select id="getImageDirectory">
+		SELECT * FROM jnu_file WHERE post_id = #{postId}
+	</select>
+	
+	<select id="getLectureList" resultType="PostVO">
+		SELECT * FROM jnu_post WHERE board_id = 2 and course_id = #{courseId} ORDER BY post_regdate ASC
+	</select>
+	
+	<select id="getFilePathForLecture" resultType="FileVO">
+		SELECT * FROM jnu_file WHERE post_id = #{postId} and file_name = file_originname
+	</select>
+
 	<update id="updateReplyCnt">
 		update jnu_post set post_replycnt =
 		post_replycnt + #{amount} where post_id = #{postId}

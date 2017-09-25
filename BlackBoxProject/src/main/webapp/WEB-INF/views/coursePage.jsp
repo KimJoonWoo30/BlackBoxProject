@@ -111,7 +111,11 @@
 		</div>
 		<div class="col-md-4">
 			<div class="list-group">
-				<a href="#" class="list-group-item disabled"> 강 의 목 록 </a> <a href="#" class="list-group-item">Dapibus ac facilisis in</a> <a href="#" class="list-group-item">Morbi leo risus</a> <a href="#" class="list-group-item">Porta ac consectetur ac</a> <a href="#" class="list-group-item">Vestibulum at eros</a>
+				<a href="#" class="list-group-item disabled"> 강 의 목 록 </a> 
+				<c:forEach items="${lectures}" var="lecture" varStatus="status">
+					<a href="/courses/${course.courseId}/lectures/${lecture.postId}" class="list-group-item">
+						${lecture.postTitle} ${status.count}회차 ${lecture.postRegdate }</a>
+				</c:forEach>
 			</div>
 		</div>
 	</div>
@@ -577,7 +581,6 @@
 								postFileObj.append("<p>첨부된 파일이 없습니다.</p>")
 							}
 							$.each(post.files, function(index) {
-
 								var fileInfo = getFileInfo(this.fileName);
 								fileInfo.userNick = this.userNick;
 								//fileInfo.userNick = this.userNick;
@@ -965,4 +968,5 @@
 <!-- 파일 삭제기능  프론트구현0921, 백엔드 구현하기-->
 
 <!-- 댓글기능 합치기  -->
+<!-- autoupload 기능  -->
 <!-- 홈 게시판의 강의 소개는 어떻게 구혀할 것인가? -->

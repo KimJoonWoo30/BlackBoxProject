@@ -1,18 +1,47 @@
 package com.blackboxproject.controller;
 
-import javax.inject.Inject;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.nio.file.FileSystem;
+import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
 
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.blackboxproject.domain.CourseVO;
+import com.blackboxproject.domain.FileVO;
+import com.blackboxproject.domain.PostVO;
 import com.blackboxproject.service.AutoUploadService;
+import com.blackboxproject.service.CourseService;
+import com.blackboxproject.service.PostService;
+
+import util.MediaUtils;
+import util.MultipartFileSender;
+import util.UploadUtils;
 
 @Controller
 public class AutoUploadController {
@@ -21,6 +50,18 @@ public class AutoUploadController {
 
 	@Inject
 	private AutoUploadService service;
+
+	@Inject
+	private PostService ps;
+
+	@Inject
+	private CourseService cs;
+
+	@Resource(name="AutoUploadPath")
+	private String uploadPath;
+
+
+
 
 	@RequestMapping(value = "/find", method = RequestMethod.GET)
 	public void findCoureseCode() throws Exception {
@@ -96,8 +137,134 @@ public class AutoUploadController {
 
 		String result = vo.getCourseCode() + "-" + vo.getCourseClass();
 		System.out.println(result); // 예를 들어, CLT0573-1 
-		//CLT0573-1_1~100 
 
 		return new ResponseEntity<String>(result, HttpStatus.CREATED);
+	}
+
+	@ResponseBody
+	@RequestMapping("/displayImage")
+	public ResponseEntity<byte[]>  displayFile(String fileName)throws Exception{
+
+		InputStream in = null; 
+		ResponseEntity<byte[]> entity = null;
+
+		logger.info("FILE NAME: " + fileName);
+
+		try{
+
+			String formatName = fileName.substring(fileName.lastIndexOf(".")+1);
+
+			MediaType mType = MediaUtils.getMediaType(formatName);
+
+			HttpHeaders headers = new HttpHeaders();
+			in = new FileInputStream(uploadPath+fileName);
+			
+			if(in == null)
+				System.out.println(uploadPath+fileName);
+
+			if(mType != null){
+				headers.setContentType(mType);
+			}else{
+
+				fileName = fileName.substring(fileName.indexOf("_")+1);       
+				headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+				headers.add("Content-Disposition", "attachment; filename=\""+ 
+						new String(fileName.getBytes("UTF-8"), "ISO-8859-1")+"\"");
+			}
+			
+			entity = new ResponseEntity<byte[]>(IOUtils.toByteArray(in), 
+					headers, 
+					HttpStatus.CREATED);
+		}catch(Exception e){
+			e.printStackTrace();
+			entity = new ResponseEntity<byte[]>(HttpStatus.BAD_REQUEST);
+		}finally{
+			in.close();
+		}
+		return entity;    
+	}
+
+	
+	@ResponseBody
+	@RequestMapping("/displayAudio")
+	public void  displayAudio(String fileName,
+			HttpServletRequest req, HttpServletResponse res)throws Exception{
+		
+		File getFile = new File(uploadPath + fileName);
+		
+		try {
+			MultipartFileSender.fromFile(getFile)
+				.with(req)
+				.with(res)
+				.serveResource();
+		} catch (Exception e) {
+			if (!e.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException")) e.printStackTrace();
+		}
+		
+		
+	}
+
+	@ResponseBody
+	@RequestMapping(value="/autoUpload", method=RequestMethod.POST,
+	produces = "text/plain;charset=UTF-8")
+	public ResponseEntity<String> autoUpload(MultipartFile file) throws Exception{
+
+		logger.info("originalFileName : " + file.getOriginalFilename());
+		return new ResponseEntity<String>(UploadUtils.uploadCourseFile(uploadPath, file.getOriginalFilename(), file.getBytes())
+				, HttpStatus.CREATED);
+	}
+
+	@ResponseBody
+	@RequestMapping(value="/finishUpload", method=RequestMethod.POST)
+	public ResponseEntity<String> finishUpload(String end) throws Exception{
+
+		System.out.println(end);
+
+		String courseName = end.substring(1);
+
+		String[] course = courseName.split("-");
+
+		Calendar cal = Calendar.getInstance();
+		String year = cal.get(Calendar.YEAR) + "";
+		String semester = "";
+		int month = cal.get(Calendar.MONTH) + 1;
+		if(month >= 3 && month <= 6)
+			semester = "1";
+		else if (month>=9 && month <= 12)
+			semester = "2";
+		else if (month == 7 || month == 8)
+			semester = "하";
+		else 
+			semester = "동";
+
+		CourseVO cvo = cs.getCourseInfoByCodeAndDate(course[0],
+				new Integer(course[1]), semester);
+
+		// 게시글 작성
+		PostVO pvo = new PostVO();
+		pvo.setCourseId(cvo.getCourseId());
+		pvo.setBoardId(2);
+		pvo.setPostTitle(cvo.getCourseName());
+		pvo.setPostContent(cvo.getCourseCode()+cvo.getCourseClass());
+		pvo.setUserNick("admin");
+
+
+		String dirPath = UploadUtils.calcPath(uploadPath);
+		// file 경로 정보 DB에 추가
+		List<FileVO> list = new LinkedList<>();
+		FileVO f = new FileVO();
+		String filePath = dirPath + File.separator + courseName;
+		filePath = filePath.replace(File.separator, "/");
+
+		f.setFileName(filePath);
+		f.setFileOriginname(filePath);
+		f.setUserNick("admin");
+		list.add(f);
+		pvo.setFiles(list);
+
+		ps.createPost(pvo);
+		return new ResponseEntity<String>("SUCCESS",HttpStatus.OK);
+
+
 	}
 }

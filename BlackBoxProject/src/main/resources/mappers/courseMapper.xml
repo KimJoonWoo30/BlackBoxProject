@@ -46,6 +46,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		select j.course_name, j.course_id, j.course_class from jnu_user_course as u inner join jnu_course as j  where u.course_id = j.course_id and u.user_id=#{userId};
 	</select>
 	
+	<select id="getCourseInfoByCodeAndDate" resultType="CourseVO">
+		SELECT * FROM jnu_course WHERE course_code = #{courseCode}
+		and course_class = #{courseClass} and course_semester = #{courseSemester}
+	</select>
 
 </mapper>
 

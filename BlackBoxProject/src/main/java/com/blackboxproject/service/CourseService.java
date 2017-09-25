@@ -19,4 +19,6 @@ public interface CourseService {
 	// 준우, jnu_user_course테이블에서 사용자에 해당하는 교과목 번호를 가져오는 과정
 	public List<CourseVO> getUserCourseId(String userId) throws Exception;
 
+	public CourseVO getCourseInfoByCodeAndDate(String string, Integer integer, String semester);
+
 }

@@ -65,6 +65,20 @@ public class PostDAOImpl implements PostDAO {
 	}
 
 	@Override
+	public FileVO getImageDirectory(int postId) {
+		
+		return session.selectOne(namespace+".getImageDirectory", postId);
+	}
+
+	@Override
+	public List<PostVO> getLectureList(int courseId) {
+		return session.selectList(namespace+".getLectureList", courseId);
+	}
+
+	@Override
+	public FileVO getFilePathForLecture(int postId) throws Exception {
+		return session.selectOne(namespace+".getFilePathForLecture", postId);
+
 	public void updateReplyCnt(Integer postId, int amount) throws Exception {
 		// TODO Auto-generated method stub
 		Map<String, Object> paramMap = new HashMap<String, Object>();
@@ -72,6 +86,7 @@ public class PostDAOImpl implements PostDAO {
 		paramMap.put("postId", postId);
 		paramMap.put("amount", amount);
 		session.update(namespace + ".updateReplyCnt", paramMap);
+
 	}
 
 }

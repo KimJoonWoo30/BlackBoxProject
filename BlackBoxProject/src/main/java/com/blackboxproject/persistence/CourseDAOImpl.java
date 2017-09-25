@@ -56,4 +56,16 @@ public class CourseDAOImpl implements CourseDAO {
 		List<CourseVO> vo = session.selectList(namespace + ".getUserCourseId", userId);
 		return vo;
 	}
+
+	@Override
+	public CourseVO getCourseInfoByCodeAndDate(String code, Integer classNum, String semester) {
+		Map<String, Object> paramMap = new HashMap<String, Object>();
+
+		paramMap.put("courseCode", code);
+		paramMap.put("courseClass", classNum);
+		paramMap.put("courseSemester", semester);
+		
+		return session.selectOne(namespace+".getCourseInfoByCodeAndDate",
+				paramMap);
+	}
 }

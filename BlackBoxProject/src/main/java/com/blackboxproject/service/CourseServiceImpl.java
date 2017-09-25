@@ -44,4 +44,9 @@ public class CourseServiceImpl implements CourseService {
 		return coursedao.getUserCourseId(userId);
 	}
 
+	@Override
+	public CourseVO getCourseInfoByCodeAndDate(String code, Integer classNum, String semester) {
+		return coursedao.getCourseInfoByCodeAndDate(code, classNum, semester);
+	}
+
 }

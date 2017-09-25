@@ -15,4 +15,6 @@ public interface CourseDAO {
 	public void userCourse(String userId, int courseId) throws Exception;
 
 	public List<CourseVO> getUserCourseId(String userId) throws Exception;
+
+	public CourseVO getCourseInfoByCodeAndDate(String code, Integer classNum, String semester);
 }
