@@ -5,7 +5,7 @@
 
 <!-- Common Code Definition -->
 <entry key="db.id">root</entry>
-<entry key="db.pw">wnsdn0051</entry>
+<entry key="db.pw">password</entry>
 <entry key="db.url">jdbc:log4jdbc:mysql://127.0.0.1:3306/blackboxproject?useSSL=false</entry>
 
 
